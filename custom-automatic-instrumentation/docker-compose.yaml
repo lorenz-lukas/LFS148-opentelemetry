@@ -1,0 +1,154 @@
+
+services:
+  jaeger:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.15.0
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+      - QUERY_UI_CONFIG_PATH=/etc/jaeger/ui-config.json
+    volumes:
+      - ./jaeger-ui-config.json:/etc/jaeger/ui-config.json
+      - ./jaeger-custom-theme.css:/jaeger-ui/custom-theme.css
+    ports:
+      - "16686:16686"
+      - "14268:14268"
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - app-network
+
+
+################# automatic instrumentation setup ######################
+  todobackend-springboot-initial:
+    container_name: todobackend-springboot-initial
+    profiles:
+      - initial
+    build:
+      context: ./automatic-instrumentation/initial/todobackend-springboot
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./automatic-instrumentation/initial/todobackend-springboot:/app
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms512m
+      - OTEL_SERVICE_NAME=todobackend-springboot
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - jaeger
+
+
+  todoui-flask-initial:
+    container_name: todoui-flask-initial
+    profiles:
+      - initial
+    build:
+      context: ./automatic-instrumentation/initial/todoui-flask
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./automatic-instrumentation/initial/todoui-flask:/app
+    environment:
+      - BACKEND_URL=http://todobackend-springboot-initial:8080/todos/
+      - OTEL_SERVICE_NAME=todoui-flask
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+    networks:
+      - app-network
+    depends_on:
+      jaeger:
+        condition: service_started
+      todobackend-springboot-initial:
+        condition: service_healthy
+
+################# manual instrumentation tracing setup ######################
+  todobackend-springboot-manual-tracing:
+    container_name: todobackend-springboot-manual-tracing
+    profiles:
+      - manual-tracing
+    build:
+      context: ./automatic-instrumentation/manual-instrumentation-traces/todobackend-springboot
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./todobackend-springboot:/app
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms512m
+      - OTEL_SERVICE_NAME=todobackend-springboot
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - jaeger
+
+
+  todoui-flask-manual-tracing:
+    container_name: todoui-flask-manual-tracing
+    profiles:
+      - manual-tracing
+    build:
+      context: ./automatic-instrumentation/manual-instrumentation-traces/todoui-flask
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:5000/actuator/health"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+    volumes:
+      - ./todoui-flask:/app
+    environment:
+      - BACKEND_URL=http://todobackend-springboot-manual-tracing:8080/todos/
+      - OTEL_SERVICE_NAME=todoui-flask
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+    networks:
+      - app-network
+    depends_on:
+      jaeger:
+        condition: service_started
+      todobackend-springboot-manual-tracing:
+        condition: service_healthy
+
+
+networks:
+  app-network:
+    driver: bridge

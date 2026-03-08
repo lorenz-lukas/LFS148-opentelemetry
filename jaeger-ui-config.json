@@ -1,0 +1,77 @@
+{
+  "monitor": {
+    "menuEnabled": true
+  },
+  "serverApi": {
+    "tracesEndpoint": "http://localhost:16686/api/traces"
+  },
+  "archiveEnabled": false,
+  "menu": [],
+  "tracking": {
+    "gaID": "",
+    "initializeOnPageLoad": true
+  },
+  "dependencies": {
+    "dagMaxNumServices": 200,
+    "menuEnabled": true
+  },
+  "search": {
+    "maxLookback": "86400h",
+    "maxResults": 20,
+    "resultLimit": 10,
+    "maxTraceLength": 0
+  },
+  "servicePerformance": {
+    "menuEnabled": true
+  },
+  "trace": {
+    "hideDetailedUiDefaultPropsValue": false,
+    "timelineWidth": 0.6,
+    "spanBarOptions": {
+      "color": "to-gray(0.5)"
+    },
+    "tagsHighlightBaseColor": "#2196F3",
+    "tagsTextStyle": {
+      "fontSize": "12px",
+      "fontWeight": "bold"
+    }
+  },
+  "topNav": {
+    "customization": {
+      "menuColor": "#0b1220",
+      "menuItemColor": "#ffffff",
+      "logoHref": "/?q=",
+      "logoText": "Jaeger UI"
+    },
+    "menu": [
+      {
+        "label": "About Jaeger",
+        "url": "https://www.jaegertracing.io",
+        "target": "_blank"
+      }
+    ]
+  },
+  "ui": {
+    "defaultTagsBlacklist": [],
+    "hideUnavailableServicesSetting": false,
+    "hideSuggestionsAboutUnsupportedBrowsers": false,
+    "linkPatterns": [],
+    "logViewer": {
+      "enabled": false
+    },
+    "skipLocalClientCheck": false,
+    "maxTracesOnTimeline": 100,
+    "maxTraceSpansForTableView": 150,
+    "maxTracesForSearch": 30,
+    "preferences": {
+      "darkTheme": true,
+      "collapseByDefault": false
+    },
+    "theme": {
+      "backgroundColor": "#0d1117",
+      "textColor": "#f0f6fc",
+      "highlightColor": "#58a6ff",
+      "custom": "/jaeger-ui/custom-theme.css"
+    }
+  }
+}

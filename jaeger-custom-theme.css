@@ -1,0 +1,285 @@
+/* Estilo aprimorado para melhor contraste no Jaeger UI */
+
+/* Tags com melhor contraste */
+.TagsTag {
+  background-color: #1f6feb !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+  padding: 4px 8px !important;
+  border-radius: 3px !important;
+  margin: 2px !important;
+}
+
+.TagsTag:hover {
+  background-color: #388bfd !important;
+}
+
+/* Valores das tags */
+.TagsTag--value {
+  background-color: #07305a !important;
+  color: #e6f6ff !important;
+  font-weight: 700 !important;
+  margin-left: 6px !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  font-family: 'Courier New', monospace !important;
+  display: inline-block !important;
+  border: 1px solid rgba(31,111,235,0.25) !important;
+}
+
+/* Chaves das tags */
+.TagsTag--key {
+  color: #cbeeff !important;
+  font-weight: 700 !important;
+  background-color: rgba(31,111,235,0.08) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  display: inline-block !important;
+  border: 1px solid rgba(31,111,235,0.06) !important;
+}
+
+/* Separador */
+.TagsTag--equals {
+  color: #c9d1d9 !important;
+  margin: 0 2px !important;
+  font-weight: bold !important;
+}
+
+/* Texto selecionado */
+::selection {
+  background-color: #1f6feb !important;
+  color: #ffffff !important;
+}
+
+::-moz-selection {
+  background-color: #1f6feb !important;
+  color: #ffffff !important;
+}
+
+/* Highlight no timeline */
+.Scrubber {
+  opacity: 0.8 !important;
+}
+
+/* Melhor contraste para o painel de detalhes */
+.DetailWindow {
+  background-color: #0d1117 !important;
+  color: #c9d1d9 !important;
+}
+
+/* Tags de atributos com valores bem visíveis */
+.TraceTimelineViewer--tagValue {
+  background-color: #052139 !important;
+  color: #e6f6ff !important;
+  border: 1px solid rgba(31,111,235,0.25) !important;
+  padding: 6px 10px !important;
+  border-radius: 4px !important;
+  margin: 4px 6px !important;
+  font-family: 'Courier New', monospace !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  display: inline-block !important;
+}
+
+.TraceTimelineViewer--tagValue:hover {
+  background-color: #1f6feb !important;
+  color: #ffffff !important;
+}
+
+/* Additional strong styles to ensure tag keys/values are readable */
+.TraceTimelineViewer--tagKey,
+.TraceTimelineViewer--tagName,
+.TraceTimelineViewer--tagLabel,
+.TraceTimelineViewer--tag {
+  color: #cbeeff !important;
+  font-weight: 700 !important;
+}
+
+.tag-name,
+.span-attribute-name {
+  color: #9be2ff !important;
+  background-color: rgba(31,111,235,0.06) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  display: inline-block !important;
+  font-weight: 700 !important;
+}
+
+.tag-value,
+.span-attribute-value,
+.TraceTimelineViewer--tagValue {
+  color: #e6f6ff !important;
+  background-color: rgba(7,48,90,0.9) !important;
+  padding: 3px 8px !important;
+  border-radius: 4px !important;
+  border: 1px solid rgba(31,111,235,0.3) !important;
+  font-weight: 700 !important;
+}
+
+/* Service names */
+.CriticalPath--serviceNameLabel,
+.SpanTreeNode--spanName {
+  color: #58a6ff !important;
+  font-weight: bold !important;
+}
+
+/* Melhorar legibilidade do texto em geral */
+body {
+  background-color: #0d1117 !important;
+  color: #c9d1d9 !important;
+}
+
+/* Inputs e campos de texto */
+input, textarea, select {
+  background-color: #161b22 !important;
+  color: #c9d1d9 !important;
+  border: 1px solid #30363d !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #58a6ff !important;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1) !important;
+}
+
+/* Melhorar contraste das labels */
+label {
+  color: #c9d1d9 !important;
+  font-weight: 500 !important;
+}
+
+/* Headers e títulos */
+h1, h2, h3, h4, h5, h6 {
+  color: #f0f6fc !important;
+  font-weight: 600 !important;
+}
+
+/* Links */
+a {
+  color: #58a6ff !important;
+}
+
+a:hover {
+  color: #79c0ff !important;
+  text-decoration: underline !important;
+}
+
+/* Tabelas */
+table {
+  color: #c9d1d9 !important;
+}
+
+thead {
+  background-color: #161b22 !important;
+  border-bottom: 2px solid #30363d !important;
+}
+
+tbody tr:hover {
+  background-color: #161b22 !important;
+}
+
+/* Buttons */
+button {
+  background-color: #1f6feb !important;
+  color: #ffffff !important;
+  border: 1px solid #1f6feb !important;
+  font-weight: 500 !important;
+}
+
+button:hover {
+  background-color: #388bfd !important;
+  border-color: #388bfd !important;
+}
+
+/* Melhorar visibilidade dos spans na timeline */
+.SpanBar {
+  border: 1px solid #30363d !important;
+}
+
+.SpanBar:hover {
+  border: 2px solid #58a6ff !important;
+}
+
+/* Improved trace header */
+.TracePageHeader {
+  background-color: #161b22 !important;
+  border-bottom: 2px solid #30363d !important;
+  padding: 12px !important;
+}
+
+/* Stats boxes com melhor contraste */
+.TraceHeader--statItem {
+  background-color: #0d1117 !important;
+  border: 1px solid #30363d !important;
+  color: #c9d1d9 !important;
+}
+
+/* Sections e containers */
+.section {
+  background-color: #161b22 !important;
+  border: 1px solid #30363d !important;
+  padding: 12px !important;
+  border-radius: 6px !important;
+}
+
+/* Span details com melhor legibilidade */
+.SpanDetail {
+  background-color: #161b22 !important;
+  border: 1px solid #30363d !important;
+  padding: 8px !important;
+  margin: 4px 0 !important;
+}
+
+/* Process section */
+.DetailWindowItem {
+  background-color: #0d1117 !important;
+  border-left: 2px solid #1f6feb !important;
+  padding: 8px 12px !important;
+  margin: 4px 0 !important;
+}
+
+/* Tag key color */
+.span-attribute-name,
+.tag-name {
+  color: #9be2ff !important;
+  font-weight: 700 !important;
+}
+
+/* Tag value color */
+.span-attribute-value,
+.tag-value {
+  color: #e6f6ff !important;
+  background-color: rgba(31, 111, 235, 0.25) !important;
+  padding: 2px 6px !important;
+  border-radius: 3px !important;
+  font-family: 'Courier New', monospace !important;
+  font-weight: 600 !important;
+}
+
+/* Melhorar rows das tabelas de atributos */
+tr:nth-child(odd) {
+  background-color: #0d1117 !important;
+}
+
+tr:nth-child(even) {
+  background-color: #161b22 !important;
+}
+
+tr:hover {
+  background-color: #0a3069 !important;
+}
+
+/* Garantir que os valores fiquem visíveis */
+.value-wrapper {
+  color: #79c0ff !important;
+  font-weight: 500 !important;
+}
+
+/* Aumentar contraste do texto em popups/tooltips */
+.tooltip, [tooltip] {
+  background-color: #0a3069 !important;
+  color: #f0f6fc !important;
+  border: 1px solid #1f6feb !important;
+}
+

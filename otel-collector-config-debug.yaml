@@ -1,0 +1,27 @@
+receivers:
+  filelog:
+    start_at: beginning
+    include: [ /Users/tylerhelmuth/projects/opentelemetry-collector-contrib/local/test.log ]
+
+
+processors:
+  filter:
+    error_mode: ignore
+    log_conditions:
+      - log.body == "test"
+
+exporters:
+  debug:
+
+service:
+  telemetry:
+    logs:
+      level: debug
+  pipelines:
+    logs:
+      receivers:
+        - filelog
+      processors:
+        - filter
+      exporters:
+        - debug
