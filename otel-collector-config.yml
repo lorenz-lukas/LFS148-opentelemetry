@@ -7,18 +7,7 @@ receivers:
         - job_name: 'otel-collector'
           scrape_interval: 5s
           static_configs:
-            - targets: ['0.0.0.0:8888']
-        - job_name: k8s
-          kubernetes_sd_configs:
-          - role: pod
-          relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-            regex: "true"
-            action: keep
-          metric_relabel_configs:
-          - source_labels: [__name__]
-            regex: "(request_duration_seconds.*|response_duration_seconds.*)"
-            action: keep
+            - targets: ['otelcol:8888']
   otlp:
     protocols:
       grpc:
@@ -28,7 +17,7 @@ receivers:
 
 processors:
   batch:
-    - timeout: 5s
+    timeout: 5s
   attributes/example:
     actions:
       - key: example_field
@@ -55,7 +44,7 @@ exporters:
       insecure: true
 
   otlp/jaeger:
-    endpoint: "http://jaeger:14317"
+    endpoint: "jaeger:4317"
     tls:
       insecure: true
   
@@ -71,7 +60,7 @@ service:
     traces/example:
       receivers: [otlp]
       processors: [batch]
-      exporters: [otlp/jaeger, debug, debug]
+      exporters: [otlp/jaeger, debug]
     logs:
         receivers: [otlp]
         processors: [batch, attributes/example]

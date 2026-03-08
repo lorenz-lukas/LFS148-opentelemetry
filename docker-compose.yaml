@@ -3,11 +3,10 @@ services:
   
   otelcol:
     image: otel/opentelemetry-collector-contrib:0.109.0
-    command: ["--config=/etc/otel-collector-config.yml", "${OTELCOL_ARGS:---log-level=debug}"]
+    command: ["--config=/etc/otel-collector-config.yml"]
     container_name: otelcol
     environment:
       - ENVIRONMENT=production
-      - OTELCOL_ARGS=--log-level=debug
     volumes:
       - ./otel-collector-config.yml:/etc/otel-collector-config.yml
     ports:
@@ -39,6 +38,7 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
+      - --web.enable-otlp-receiver
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -61,6 +61,7 @@ services:
     environment:
       - JAVA_OPTS=-Xmx512m -Xms512m
       - OTEL_SERVICE_NAME=todobackend-springboot
+      - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=todobackend-springboot,deployment.environment=dev
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_LOGS_EXPORTER=otlp
@@ -96,6 +97,7 @@ services:
     environment:
       - BACKEND_URL=http://todobackend-springboot-automatic-instrumentation:8080/todos/
       - OTEL_SERVICE_NAME=todoui-flask
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=todoui-flask,deployment.environment=dev"
       - OTEL_TRACES_EXPORTER=otlp
       - OTEL_METRICS_EXPORTER=otlp
       - OTEL_LOGS_EXPORTER=otlp
@@ -113,6 +115,72 @@ services:
 
 
 ################## automatic instrumentation setup ######################
+  todobackend-springboot-custom-automatic-instrumentation:
+    container_name: todobackend-springboot-custom-automatic-instrumentation
+    build:
+      context: ./custom-automatic-instrumentation/todobackend-springboot
+      dockerfile: Dockerfile
+    profiles:
+      - custom-automatic-instrumentation
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./custom-automatic-instrumentation/todobackend-springboot:/app
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms512m
+      - OTEL_SERVICE_NAME=todobackend-springboot
+      - OTEL_RESOURCE_ATTRIBUTES=service.instance.id=todobackend-springboot,deployment.environment=dev
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      - jaeger
+
+
+  todoui-flask-custom-automatic-instrumentation:
+    container_name: todoui-flask-custom-automatic-instrumentation
+    build:
+      context: ./custom-automatic-instrumentation/todoui-flask
+      dockerfile: Dockerfile
+    profiles:
+      - custom-automatic-instrumentation
+    ports:
+      - "7000:7000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./custom-automatic-instrumentation/todoui-flask:/app
+    environment:
+      - BACKEND_URL=http://todobackend-springboot-custom-automatic-instrumentation:8080/todos/
+      - OTEL_SERVICE_NAME=todoui-flask
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=todoui-flask,deployment.environment=dev"
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+    networks:
+      - app-network
+    depends_on:
+      jaeger:
+        condition: service_started
+      todobackend-springboot-custom-automatic-instrumentation:
+        condition: service_healthy
+
 
 networks:
   app-network:

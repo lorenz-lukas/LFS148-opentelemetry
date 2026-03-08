@@ -8,8 +8,8 @@ scrape_configs:
       - targets:
           - prometheus:9090
 
-  - job_name: api
+  - job_name: otelcol
     metrics_path: /metrics
     static_configs:
       - targets:
-          - api:9464
+          - otelcol:8888

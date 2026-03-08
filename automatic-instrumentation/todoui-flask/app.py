@@ -10,6 +10,7 @@ from opentelemetry import trace
 # Acquire a tracer
 tracer = trace.get_tracer("todo.tracer")
 PORT = getenv("PORT", 7000)
+
 app = Flask(__name__)
 logging.getLogger(__name__)
 logging.basicConfig(
@@ -18,8 +19,7 @@ logging.basicConfig(
 
 # Set a default external API URL
 # Override the default URL if an environment variable is set
-app.config["BACKEND_URL"] = "http://localhost:8080/todos/"
-app.config["BACKEND_URL"] = getenv("BACKEND_URL", app.config["BACKEND_URL"])
+app.config["BACKEND_URL"] = getenv("BACKEND_URL", f"http://localhost:{PORT}/todos/")
 
 
 @app.route("/")

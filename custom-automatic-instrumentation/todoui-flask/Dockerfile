@@ -34,6 +34,6 @@ ENV PATH="/install/bin:${PATH}" \
 
 USER app
 
-EXPOSE 5000
+EXPOSE 7000
 
 CMD ["opentelemetry-instrument","python","app.py"]
