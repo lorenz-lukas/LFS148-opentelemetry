@@ -145,7 +145,6 @@ services:
     depends_on:
       - jaeger
 
-
   todoui-flask-custom-automatic-instrumentation:
     container_name: todoui-flask-custom-automatic-instrumentation
     build:
@@ -181,6 +180,54 @@ services:
       todobackend-springboot-custom-automatic-instrumentation:
         condition: service_healthy
 
+################## manual instrumentation setup ######################
+  echo:
+    image: ealen/echo-server:0.9.2
+    ports:
+      - 6000:80
+    environment:
+      - OTEL_SERVICE_NAME=echo
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otpĺ
+      - OTEL_LOGS_EXPORTER=otpl
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+    networks:
+      - app-network
+
+  userbackend-flask-manual-instrumentation:
+    container_name: userbackend-flask-manual-instrumentation
+    build: 
+      context: manual-instrumentation/userbackend-flask
+      dockerfile: Dockerfile
+    profiles:
+      - manual-instrumentation
+    volumes:
+      - ./manual-instrumentation/userbackend-flask:/app
+    environment:
+      - OTEL_SERVICE_NAME=userbackend-flask
+      - OTEL_RESOURCE_ATTRIBUTES="service.instance.id=userbackend-flask,deployment.environment=dev
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otelcol:4317
+      - FLASK_ENV=production
+      - FLASK_APP=app.py
+      - PORT=7000
+    ports:
+      - 7000:7000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app-network
+    depends_on:
+      otelcol:
+        condition: service_started  
 
 networks:
   app-network:
