@@ -1,0 +1,33 @@
+services:
+  usertodo-golang:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: usertodo-golang
+    environment:
+      PORT: 8080
+      DATABASE_DSN: host=postgres user=postgres password=postgres dbname=hexagonal_api port=5432 sslmode=disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: hexagonal_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

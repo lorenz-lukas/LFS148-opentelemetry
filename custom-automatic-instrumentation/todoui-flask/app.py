@@ -59,6 +59,7 @@ app.config["BACKEND_URL"] = getenv("BACKEND_URL", f"http://localhost:{PORT}/todo
 
 
 @app.route("/")
+@trace_span("index", {"backend.url": lambda: app.config["BACKEND_URL"]})
 def index():
 
     backend_url = app.config["BACKEND_URL"]
@@ -108,7 +109,7 @@ def delete():
 
 
 @app.route("/actuator/health")
-@trace_span("health")
+@trace_span("health", {"backend.url": lambda: app.config["BACKEND_URL"]})
 def health():
     try:
         # Tentar conectar ao backend para validar saúde completa
