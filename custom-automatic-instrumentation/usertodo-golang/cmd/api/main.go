@@ -35,10 +35,11 @@ func main() {
 	userRepository := postgresadapter.NewUserRepository(db)
 	taskRepository := postgresadapter.NewTaskRepository(db)
 
-	createUserUseCase := usecase.NewCreateUserUseCase(userRepository, taskRepository)
-	createTaskUseCase := usecase.NewCreateTaskUseCase(taskRepository)
+	createUserUseCase := usecase.NewCreateUserUseCase(userRepository)
+	listTasksUseCase := usecase.NewListTasksUseCase(taskRepository)
+	attachTaskToUserUseCase := usecase.NewAttachTaskToUserUseCase(userRepository, taskRepository)
 
-	router := httpadapter.NewRouter(logger, createUserUseCase, createTaskUseCase)
+	router := httpadapter.NewRouter(logger, createUserUseCase, listTasksUseCase, attachTaskToUserUseCase)
 
 	logger.Info("http server listening on %s", baseURL)
 	if err := router.Run(":" + cfg.Port); err != nil {

@@ -1,0 +1,174 @@
+swagger: "2.0"
+info:
+  title: UserTodo API
+  version: "1.0.0"
+  description: API for creating users, listing todos, and linking existing todos to users.
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /health:
+    get:
+      summary: Service health check
+      operationId: health
+      tags:
+        - health
+      responses:
+        "200":
+          description: Service is healthy
+          schema:
+            $ref: "#/definitions/HealthResponse"
+  /todos:
+    get:
+      summary: List todos
+      operationId: listTodos
+      tags:
+        - todos
+      responses:
+        "200":
+          description: Todo list
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TodoResponse"
+        "500":
+          description: Failed to list todos
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /users:
+    post:
+      summary: Create a user
+      operationId: createUser
+      tags:
+        - users
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/CreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "400":
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /users/{userId}/tasks/{taskId}:
+    post:
+      summary: Link a todo to a user
+      operationId: attachTaskToUser
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          type: integer
+          format: uint64
+        - in: path
+          name: taskId
+          required: true
+          type: integer
+          format: uint64
+      responses:
+        "200":
+          description: Todo linked to user
+          schema:
+            $ref: "#/definitions/UserResponse"
+        "400":
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        "404":
+          description: User or todo not found
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+definitions:
+  HealthResponse:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        type: string
+        example: ok
+  CreateUserRequest:
+    type: object
+    required:
+      - name
+      - email
+    properties:
+      name:
+        type: string
+        example: Lukas
+      email:
+        type: string
+        example: lukas@example.com
+  TodoResponse:
+    type: object
+    required:
+      - id
+      - title
+      - description
+      - done
+      - created_at
+    properties:
+      id:
+        type: integer
+        format: uint64
+        example: 1
+      title:
+        type: string
+        example: Prepare interview
+      description:
+        type: string
+        example: Review hexagonal architecture
+      done:
+        type: boolean
+        example: false
+      created_at:
+        type: string
+        format: date-time
+        example: "2026-03-11T23:14:52Z"
+  UserResponse:
+    type: object
+    required:
+      - id
+      - name
+      - email
+      - tasks
+      - created_at
+    properties:
+      id:
+        type: integer
+        format: uint64
+        example: 1
+      name:
+        type: string
+        example: Lukas
+      email:
+        type: string
+        example: lukas@example.com
+      tasks:
+        type: array
+        items:
+          $ref: "#/definitions/TodoResponse"
+      created_at:
+        type: string
+        format: date-time
+        example: "2026-03-11T23:14:52Z"
+  ErrorResponse:
+    type: object
+    required:
+      - error
+    properties:
+      error:
+        type: string
+        example: user not found

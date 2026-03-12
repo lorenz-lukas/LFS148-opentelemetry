@@ -12,18 +12,13 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     CGO_ENABLED=0 GOOS=linux \
     go build -mod=mod -trimpath -ldflags="-s -w" -o /bin/usertodo-api ./cmd/api
 
-FROM alpine:3.20.6
-
-RUN apk --no-cache add ca-certificates \
-    && addgroup -S appgroup \
-    && adduser -S -D -H -h /app -s /sbin/nologin -G appgroup appuser
+FROM scratch
 
 COPY --from=builder /bin/usertodo-api /usr/local/bin/usertodo-api
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 WORKDIR /app
 
-USER appuser:appgroup
-
-EXPOSE 8080
+EXPOSE 8081
 
 ENTRYPOINT ["/usr/local/bin/usertodo-api"]

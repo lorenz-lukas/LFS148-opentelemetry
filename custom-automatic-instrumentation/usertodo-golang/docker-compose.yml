@@ -6,7 +6,7 @@ services:
     container_name: usertodo-golang
     environment:
       PORT: 8080
-      DATABASE_DSN: host=postgres user=postgres password=postgres dbname=hexagonal_api port=5432 sslmode=disable
+      DATABASE_DSN: host=postgres user=postgres password=postgres dbname=todos port=5432 sslmode=disable
     ports:
       - "8080:8080"
     depends_on:
@@ -16,7 +16,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: hexagonal_api
+      POSTGRES_DB: todos
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:

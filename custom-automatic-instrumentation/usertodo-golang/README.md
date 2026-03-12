@@ -1,6 +1,6 @@
 # Gin Hexagonal API
 
-This project exposes a small Gin API using a hexagonal architecture, PostgreSQL, and GORM.
+This project exposes a small Gin API using a hexagonal architecture, PostgreSQL, and GORM. The Go API manages users and user-task relationships, while the Java service owns the `todo` table.
 
 ## Structure
 
@@ -29,6 +29,8 @@ go run ./cmd/api
 The API uses `DATABASE_DSN` and `PORT`, with defaults defined in `.env.example`.
 Database schema is managed by GORM auto-migration during startup.
 
+Swagger docs are available at `http://localhost:8080/swagger`, and the raw spec is served at `http://localhost:8080/swagger/doc.yaml`.
+
 ## Docker
 
 Build the image:
@@ -42,24 +44,44 @@ Run the container against a PostgreSQL instance:
 ```bash
 docker run --rm -p 8080:8080 \
   -e PORT=8080 \
-  -e DATABASE_DSN="host=host.docker.internal user=postgres password=postgres dbname=hexagonal_api port=5432 sslmode=disable" \
+  -e DATABASE_DSN="host=host.docker.internal user=postgres password=postgres dbname=todos port=5432 sslmode=disable" \
   usertodo-golang
+```
+
+## Swagger
+
+The repository includes a checked-in Swagger 2.0 document used by the runtime docs endpoint:
+
+```bash
+curl http://localhost:8080/swagger/doc.yaml
+```
+
+To regenerate the spec with `go-swagger` after changing annotations:
+
+```bash
+go run github.com/go-swagger/go-swagger/cmd/swagger@v0.33.1 generate spec \
+  --scan-models \
+  -o ./internal/adapters/http/swagger.generated.json
 ```
 
 ## Endpoints
 
-Create a task:
+List todos:
 
 ```bash
-curl -X POST http://localhost:8080/tasks \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Prepare interview","description":"Review hexagonal architecture"}'
+curl http://localhost:8080/todos
 ```
 
-Create a user and associate the user to existing tasks:
+Create a user:
 
 ```bash
 curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json" \
-  -d '{"name":"Lukas","email":"lukas@example.com","task_ids":[1]}'
+  -d '{"name":"Lukas","email":"lukas@example.com"}'
+```
+
+Associate an existing todo to an existing user:
+
+```bash
+curl -X POST http://localhost:8080/users/1/tasks/1
 ```

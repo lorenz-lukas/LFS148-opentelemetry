@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"errors"
 
 	"interview/internal/domain"
 
@@ -32,11 +33,6 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	model := UserModel{
 		Name:  user.Name,
 		Email: user.Email,
-		Tasks: make([]TaskModel, 0, len(user.Tasks)),
-	}
-
-	for _, task := range user.Tasks {
-		model.Tasks = append(model.Tasks, TaskModel{ID: task.ID})
 	}
 
 	if err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -56,23 +52,36 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	return nil
 }
 
-func (r *TaskRepository) Create(ctx context.Context, task *domain.Task) error {
-	model := TaskModel{
-		Title:       task.Title,
-		Description: task.Description,
-		Done:        task.Done,
+func (r *UserRepository) FindByID(ctx context.Context, id uint) (*domain.User, error) {
+	var model UserModel
+
+	err := r.db.WithContext(ctx).Preload("Tasks").First(&model, id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
 	}
 
-	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
-		return err
+	user := &domain.User{
+		ID:        model.ID,
+		Name:      model.Name,
+		Email:     model.Email,
+		Tasks:     mapTasks(model.Tasks),
+		CreatedAt: model.CreatedAt,
+		UpdatedAt: model.UpdatedAt,
 	}
 
-	task.ID = model.ID
-	task.Done = model.Done
-	task.CreatedAt = model.CreatedAt
-	task.UpdatedAt = model.UpdatedAt
+	return user, nil
+}
 
-	return nil
+func (r *UserRepository) AttachTask(ctx context.Context, userID uint, taskID uint) error {
+	link := UserTaskModel{
+		UserID: userID,
+		TaskID: taskID,
+	}
+
+	return r.db.WithContext(ctx).Where("user_id = ? AND task_id = ?", userID, taskID).FirstOrCreate(&link).Error
 }
 
 func (r *TaskRepository) FindByIDs(ctx context.Context, ids []uint) ([]domain.Task, error) {
@@ -82,6 +91,20 @@ func (r *TaskRepository) FindByIDs(ctx context.Context, ids []uint) ([]domain.Ta
 		return nil, err
 	}
 
+	return mapTasks(models), nil
+}
+
+func (r *TaskRepository) List(ctx context.Context) ([]domain.Task, error) {
+	var models []TaskModel
+
+	if err := r.db.WithContext(ctx).Where("done = ?", false).Order("created_at asc").Find(&models).Error; err != nil {
+		return nil, err
+	}
+
+	return mapTasks(models), nil
+}
+
+func mapTasks(models []TaskModel) []domain.Task {
 	tasks := make([]domain.Task, 0, len(models))
 	for _, model := range models {
 		tasks = append(tasks, domain.Task{
@@ -94,5 +117,5 @@ func (r *TaskRepository) FindByIDs(ctx context.Context, ids []uint) ([]domain.Ta
 		})
 	}
 
-	return tasks, nil
+	return tasks
 }
